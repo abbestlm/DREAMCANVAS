@@ -1,3 +1,4 @@
+// DreamCanvas AI - A powerful creative studio
 import { useState, useRef, useEffect } from "react";
 import { 
   Sparkles, 
