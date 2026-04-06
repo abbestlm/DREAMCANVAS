@@ -8,31 +8,6 @@ const getAI = () => {
   return new GoogleGenAI({ apiKey });
 };
 
-export const generateImage = async (prompt: string) => {
-  const ai = getAI();
-  const response = await ai.models.generateContent({
-    model: "gemini-2.5-flash-image",
-    contents: {
-      parts: [{ text: prompt }],
-    },
-    config: {
-      imageConfig: {
-        aspectRatio: "1:1",
-      },
-    },
-  });
-
-  const parts = response.candidates?.[0]?.content?.parts;
-  if (!parts) throw new Error("No response from AI");
-
-  for (const part of parts) {
-    if (part.inlineData) {
-      return `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
-    }
-  }
-  throw new Error("No image data found in response");
-};
-
 export const analyzeImage = async (imagePrompt: string, base64Image: string) => {
   const ai = getAI();
   const [mimeType, data] = base64Image.split(";base64,");

@@ -1,7 +1,7 @@
 // DreamCanvas AI - A powerful creative studio
 import { useState, useRef, useEffect } from "react";
 import { 
-  Sparkles, 
+  Eye, 
   Image as ImageIcon, 
   MessageSquare, 
   Upload, 
@@ -10,14 +10,15 @@ import {
   Send,
   Trash2,
   ChevronRight,
-  Info
+  Info,
+  Zap
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import Markdown from "react-markdown";
 import { cn } from "@/src/lib/utils";
-import { generateImage, analyzeImage, chatWithAI } from "@/src/services/gemini";
+import { analyzeImage, chatWithAI } from "@/src/services/gemini";
 
-type Tab = "generate" | "analyze" | "chat";
+type Tab = "analyze" | "chat";
 
 interface Message {
   role: "user" | "ai";
@@ -26,12 +27,8 @@ interface Message {
 }
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<Tab>("generate");
+  const [activeTab, setActiveTab] = useState<Tab>("analyze");
   const [isGenerating, setIsGenerating] = useState(false);
-  
-  // Image Generation State
-  const [imagePrompt, setImagePrompt] = useState("");
-  const [generatedImage, setGeneratedImage] = useState<string | null>(null);
   
   // Image Analysis State
   const [analysisImage, setAnalysisImage] = useState<string | null>(null);
@@ -51,20 +48,6 @@ export default function App() {
   useEffect(() => {
     scrollToBottom();
   }, [chatHistory]);
-
-  const handleGenerateImage = async () => {
-    if (!imagePrompt.trim()) return;
-    setIsGenerating(true);
-    try {
-      const url = await generateImage(imagePrompt);
-      setGeneratedImage(url);
-    } catch (error) {
-      console.error(error);
-      alert("Failed to generate image. Please try again.");
-    } finally {
-      setIsGenerating(false);
-    }
-  };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -115,9 +98,9 @@ export default function App() {
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-10 h-10 bg-brand-600 rounded-xl flex items-center justify-center shadow-lg shadow-brand-200">
-              <Sparkles className="text-white w-6 h-6" />
+              <Zap className="text-white w-6 h-6" />
             </div>
-            <h1 className="text-xl font-display font-bold text-slate-900">DreamCanvas AI</h1>
+            <h1 className="text-xl font-display font-bold text-slate-900">InsightAI</h1>
           </div>
           <div className="flex items-center gap-4">
             <a 
@@ -140,15 +123,9 @@ export default function App() {
         {/* Navigation Tabs */}
         <div className="flex flex-wrap gap-2 mb-8 p-1 bg-slate-100 rounded-2xl w-fit mx-auto">
           <TabButton 
-            active={activeTab === "generate"} 
-            onClick={() => setActiveTab("generate")}
-            icon={<Sparkles className="w-4 h-4" />}
-            label="Image Studio"
-          />
-          <TabButton 
             active={activeTab === "analyze"} 
             onClick={() => setActiveTab("analyze")}
-            icon={<ImageIcon className="w-4 h-4" />}
+            icon={<Eye className="w-4 h-4" />}
             label="Visual Insight"
           />
           <TabButton 
@@ -160,91 +137,6 @@ export default function App() {
         </div>
 
         <AnimatePresence mode="wait">
-          {activeTab === "generate" && (
-            <motion.div
-              key="generate"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="grid lg:grid-cols-2 gap-8 items-start"
-            >
-              <div className="space-y-6">
-                <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
-                  <h2 className="text-2xl mb-4">Create Magic</h2>
-                  <p className="text-slate-500 mb-6">Describe the image you want to generate. Be specific for better results.</p>
-                  
-                  <textarea
-                    value={imagePrompt}
-                    onChange={(e) => setImagePrompt(e.target.value)}
-                    placeholder="A futuristic city with neon lights and flying cars, digital art style..."
-                    className="w-full h-32 p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all outline-none resize-none"
-                  />
-                  
-                  <button
-                    onClick={handleGenerateImage}
-                    disabled={isGenerating || !imagePrompt.trim()}
-                    className="w-full mt-6 py-4 bg-brand-600 hover:bg-brand-700 disabled:bg-slate-300 text-white rounded-2xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-brand-200 active:scale-[0.98]"
-                  >
-                    {isGenerating ? (
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                    ) : (
-                      <Sparkles className="w-5 h-5" />
-                    )}
-                    Generate Image
-                  </button>
-                </div>
-
-                <div className="bg-brand-50 p-6 rounded-3xl border border-brand-100">
-                  <h3 className="text-brand-900 font-bold mb-2 flex items-center gap-2">
-                    <Info className="w-4 h-4" /> Pro Tip
-                  </h3>
-                  <p className="text-brand-800 text-sm leading-relaxed">
-                    Try adding style keywords like "cinematic lighting", "oil painting", "minimalist", or "hyper-realistic" to your prompt.
-                  </p>
-                </div>
-              </div>
-
-              <div className="bg-white p-4 rounded-3xl shadow-sm border border-slate-200 aspect-square flex items-center justify-center relative overflow-hidden group">
-                {generatedImage ? (
-                  <>
-                    <img 
-                      src={generatedImage} 
-                      alt="Generated" 
-                      className="w-full h-full object-cover rounded-2xl"
-                      referrerPolicy="no-referrer"
-                    />
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
-                      <button 
-                        onClick={() => {
-                          const link = document.createElement('a');
-                          link.href = generatedImage;
-                          link.download = 'dreamcanvas-ai.png';
-                          link.click();
-                        }}
-                        className="p-3 bg-white rounded-full hover:scale-110 transition-transform"
-                      >
-                        <Download className="w-6 h-6 text-slate-900" />
-                      </button>
-                    </div>
-                  </>
-                ) : (
-                  <div className="text-center space-y-4">
-                    <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto">
-                      <ImageIcon className="w-10 h-10 text-slate-300" />
-                    </div>
-                    <p className="text-slate-400 font-medium">Your creation will appear here</p>
-                  </div>
-                )}
-                {isGenerating && (
-                  <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center gap-4">
-                    <Loader2 className="w-12 h-12 text-brand-600 animate-spin" />
-                    <p className="text-brand-900 font-bold animate-pulse">Painting your dreams...</p>
-                  </div>
-                )}
-              </div>
-            </motion.div>
-          )}
-
           {activeTab === "analyze" && (
             <motion.div
               key="analyze"
@@ -300,7 +192,7 @@ export default function App() {
                     {isGenerating ? (
                       <Loader2 className="w-5 h-5 animate-spin" />
                     ) : (
-                      <Sparkles className="w-5 h-5" />
+                      <Zap className="w-5 h-5" />
                     )}
                     Analyze Image
                   </button>
@@ -364,7 +256,7 @@ export default function App() {
                 {chatHistory.length === 0 ? (
                   <div className="h-full flex flex-col items-center justify-center text-center space-y-4">
                     <div className="w-20 h-20 bg-white rounded-full shadow-sm flex items-center justify-center">
-                      <Sparkles className="w-10 h-10 text-brand-400" />
+                      <Zap className="w-10 h-10 text-brand-400" />
                     </div>
                     <div className="max-w-xs">
                       <p className="font-bold text-slate-700">Start a conversation</p>
