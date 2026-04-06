@@ -1,4 +1,4 @@
-// DreamCanvas AI - A powerful creative studio
+// InsightAI - A personal project for visual analysis and creative conversation
 import { useState, useRef, useEffect } from "react";
 import { 
   Eye, 
@@ -148,7 +148,7 @@ export default function App() {
               <div className="space-y-6">
                 <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
                   <h2 className="text-2xl mb-4">Visual Insight</h2>
-                  <p className="text-slate-500 mb-6">Upload an image and ask Gemini to analyze it or write a story.</p>
+                  <p className="text-slate-500 mb-6">Upload an image and ask the AI to analyze it or write a story.</p>
                   
                   <div 
                     onClick={() => fileInputRef.current?.click()}
@@ -241,7 +241,7 @@ export default function App() {
                   </div>
                   <div>
                     <h3 className="font-bold">Creative Assistant</h3>
-                    <p className="text-xs text-slate-400">Powered by Gemini 3 Flash</p>
+                    <p className="text-xs text-slate-400">Insight Engine v1.0</p>
                   </div>
                 </div>
                 <button 
@@ -289,7 +289,7 @@ export default function App() {
                         )}
                       </div>
                       <span className="text-[10px] text-slate-400 mt-1 uppercase font-bold tracking-wider">
-                        {msg.role === "user" ? "You" : "Gemini"}
+                        {msg.role === "user" ? "You" : "Assistant"}
                       </span>
                     </motion.div>
                   ))
@@ -332,7 +332,7 @@ export default function App() {
       <footer className="py-8 border-t border-slate-200 bg-white">
         <div className="container mx-auto px-4 text-center">
           <p className="text-slate-400 text-sm">
-            Built with <span className="text-red-500">â¥</span> using Google Gemini AI
+            &copy; {new Date().getFullYear()} InsightAI. All rights reserved.
           </p>
         </div>
       </footer>
