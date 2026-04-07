@@ -8,6 +8,20 @@ const getAI = () => {
   return new GoogleGenAI({ apiKey });
 };
 
+export const generateImage = async (prompt: string) => {
+  // Using Pollinations.ai for free, unrestricted image generation
+  // This bypasses Google's regional restrictions for Gemini Free Tier in Algeria/Mexico
+  const encodedPrompt = encodeURIComponent(prompt);
+  const seed = Math.floor(Math.random() * 1000000);
+  const url = `https://image.pollinations.ai/prompt/${encodedPrompt}?seed=${seed}&width=1024&height=1024&nologo=true`;
+  
+  // We fetch it to ensure the image is ready and to handle errors
+  const response = await fetch(url);
+  if (!response.ok) throw new Error("Failed to generate image");
+  
+  return url;
+};
+
 export const analyzeImage = async (imagePrompt: string, base64Image: string) => {
   const ai = getAI();
   const [mimeType, data] = base64Image.split(";base64,");
